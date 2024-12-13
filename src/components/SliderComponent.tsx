@@ -28,16 +28,8 @@ const fetchCoinData = async (name: string) => {
   };
 };
 
-export default function SliderComponent() {
-  return (
-    <div className="flex h-screen w-screen justify-center items-center ">
-      <div className="h-fit w-screen flex flex-row gap-2">
-        {names.map((name, index) => (
-          <CoinWrapper name={name} key={index} />
-        ))}
-      </div>
-    </div>
-  );
+export default function SliderComponent({ name }: { name: string }) {
+  return <CoinWrapper name={name} />;
 }
 
 const CoinWrapper = ({ name }: { name: string }) => {
@@ -47,7 +39,6 @@ const CoinWrapper = ({ name }: { name: string }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
       setError(null);
       try {
         const fetchedData = await fetchCoinData(name);
@@ -59,6 +50,8 @@ const CoinWrapper = ({ name }: { name: string }) => {
       }
     };
     fetchData();
+    const interval = setInterval(() => fetchData(), 10000);
+    return () => clearInterval(interval);
   }, [name]);
 
   if (isLoading) {
@@ -73,23 +66,19 @@ const CoinWrapper = ({ name }: { name: string }) => {
     return <p>Failed to load data</p>;
   }
 
-  const func = () => {
-    return (
-      <div>
-        <CoinCart
-          key={name}
-          usd={new Intl.NumberFormat("de-DE", {
-            style: "currency",
-            currency: "USD",
-          }).format(Number(data.price))}
-          name={name}
-          percentege={`${data.percentageChange}%`}
-          imgurl={data.image}
-          chartData={data.history}
-        />
-      </div>
-    );
-  };
-
-  return <p>Loading...</p>;
+  return (
+    <div>
+      <CoinCart
+        key={name}
+        usd={new Intl.NumberFormat("de-DE", {
+          style: "currency",
+          currency: "USD",
+        }).format(Number(data.price))}
+        name={name}
+        percentege={`${data.percentageChange}%`}
+        imgurl={data.image}
+        chartData={data.history}
+      />
+    </div>
+  );
 };

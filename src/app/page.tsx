@@ -1,4 +1,5 @@
 import CoinCart from "@/components/CoinCart";
+import SliderComponent from "@/components/SliderComponent";
 import { coins } from "@/lib/const";
 import {
   getTheCoinHistoryPrice,
@@ -33,17 +34,18 @@ const Home = () => {
     <div className="flex h-screen w-screen justify-center items-center ">
       <div className="h-fit w-screen flex flex-row gap-2">
         {names.map(async (name, index) => (
-          <CoinCart
-            usd={new Intl.NumberFormat("de-DE", {
-              style: "currency",
-              currency: "USD",
-            }).format(Number((await fetchCoinData(name)).price))}
-            chartData={(await fetchCoinData(name)).history}
-            name={name}
-            percentege={(await fetchCoinData(name)).percentageChange}
-            imgurl={(await fetchCoinData(name)).image}
-            key={index}
-          />
+          <SliderComponent name={name} />
+          // <CoinCart
+          //   usd={new Intl.NumberFormat("de-DE", {
+          //     style: "currency",
+          //     currency: "USD",
+          //   }).format(Number((await fetchCoinData(name)).price))}
+          //   chartData={(await fetchCoinData(name)).history}
+          //   name={name}
+          //   percentege={(await fetchCoinData(name)).percentageChange}
+          //   imgurl={(await fetchCoinData(name)).image}
+          //   key={index}
+          // />
         ))}
       </div>
     </div>
