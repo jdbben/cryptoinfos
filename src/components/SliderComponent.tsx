@@ -7,13 +7,16 @@ import {
   getTheCoinPrice,
 } from "@/utils/test";
 import { useEffect, useState } from "react";
+
 interface CoinData {
   price: string;
   percentageChange: string;
   history: [number, number][];
   image: string;
 }
+
 const names = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
+
 const fetchCoinData = async (name: string) => {
   const [priceData, history, image] = await Promise.all([
     getTheCoinPrice(name),
@@ -50,9 +53,47 @@ const CoinWrapper = ({ name }: { name: string }) => {
       }
     };
     fetchData();
-    const interval = setInterval(() => fetchData(), 10000);
+    const interval = setInterval(fetchData, 400000);
     return () => clearInterval(interval);
   }, [name]);
+
+  useEffect(() => {
+    const updatePriceAndChange = async () => {
+      try {
+        if (data) {
+          const priceData = await getTheCoinPrice(name);
+          setData((prevData) => ({
+            ...prevData!,
+            price: priceData?.RS.price ?? "00",
+            percentageChange: priceData?.infos.priceChangePercent ?? "00",
+          }));
+        }
+      } catch (err) {
+        console.error(`Error updating price and percentage for ${name}:`, err);
+      }
+    };
+
+    const priceInterval = setInterval(updatePriceAndChange, 1000);
+    return () => clearInterval(priceInterval);
+  }, [name, data]);
+
+  useEffect(() => {
+    const updateImage = async () => {
+      try {
+        const image = await getTheCoinImg(coins[name]);
+        setData((prevData) => ({
+          ...prevData!,
+          image: image ?? "",
+        }));
+      } catch (err) {
+        console.error(`Error fetching image for ${name}:`, err);
+      }
+    };
+
+    if (data && !data.image) {
+      updateImage();
+    }
+  }, [name, data?.image]);
 
   if (isLoading) {
     return <p>Loading...</p>;

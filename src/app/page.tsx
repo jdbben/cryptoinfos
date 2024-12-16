@@ -1,52 +1,75 @@
-import CoinCart from "@/components/CoinCart";
+"use client";
 import SliderComponent from "@/components/SliderComponent";
+import { func } from "../../test";
+import { useEffect, useState } from "react";
+import ChartComponent from "@/components/Chart";
 import { coins } from "@/lib/const";
-import {
-  getTheCoinHistoryPrice,
-  getTheCoinImg,
-  getTheCoinPrice,
-} from "@/utils/test";
 
-interface CoinData {
-  price: string;
-  percentageChange: string;
-  history: [number, number][];
-  image: string;
-}
 const names = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
-const fetchCoinData = async (name: string): Promise<CoinData> => {
-  const [priceData, history, image] = await Promise.all([
-    getTheCoinPrice(name),
-    getTheCoinHistoryPrice(coins[name], 1),
-    getTheCoinImg(coins[name]),
-  ]);
-  console.log(priceData?.infos.priceChangePercent, coins[name]);
-  return {
-    price: priceData?.RS.price ?? "00",
-    percentageChange: priceData?.infos.priceChangePercent ?? "00",
-    history,
-    image: image ?? "",
-  };
-};
-
 const Home = () => {
+  const [BigChartName, setBigChartName] = useState<string>("BTCUSDT");
+  const [chartDAta, setChartData] = useState<[number, number][]>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleSelectedName = (name: string) => {
+    setBigChartName(name);
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          `/api/history?name=${encodeURIComponent(coins[BigChartName])}`
+        );
+
+        if (!res.ok) {
+          throw new Error(
+            `Failed to fetch data: ${res.status} ${res.statusText}`
+          );
+        }
+
+        const da = await res.json();
+        const data = da.data;
+        setChartData(data);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (BigChartName && coins[BigChartName]) {
+      fetchData();
+    }
+  }, [BigChartName, coins]);
+
   return (
-    <div className="flex h-screen w-screen justify-center items-center ">
-      <div className="h-fit w-screen flex flex-row gap-2">
-        {names.map(async (name, index) => (
-          <SliderComponent name={name} />
-          // <CoinCart
-          //   usd={new Intl.NumberFormat("de-DE", {
-          //     style: "currency",
-          //     currency: "USD",
-          //   }).format(Number((await fetchCoinData(name)).price))}
-          //   chartData={(await fetchCoinData(name)).history}
-          //   name={name}
-          //   percentege={(await fetchCoinData(name)).percentageChange}
-          //   imgurl={(await fetchCoinData(name)).image}
-          //   key={index}
-          // />
+    <div className="flex h-screen w-screen justify-center items-center flex-col gap-4 pt-11">
+      <div className="h-fit w-screen flex flex-row gap-2 lg:pt-[15vh] pl-[10vh]">
+        {names.map((name, index) => (
+          <div key={index} onClick={() => handleSelectedName(name)}>
+            <SliderComponent name={name} key={index} />
+          </div>
         ))}
+      </div>
+      <div className="h-fit w-screen">
+        {isLoading ? (
+          <>Loading...</>
+        ) : chartDAta ? (
+          <>
+            <h1 className="flex justify-center items-center">
+              {coins[BigChartName].toUpperCase()}
+            </h1>
+            <ChartComponent
+              chartData={chartDAta}
+              green={true}
+              x={true}
+              y={true}
+              className="pr-5 pl-5"
+            />
+          </>
+        ) : (
+          <>loading</>
+        )}
       </div>
     </div>
   );

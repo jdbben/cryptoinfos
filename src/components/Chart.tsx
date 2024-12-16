@@ -1,12 +1,22 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Chart } from "chart.js/auto";
 import { useEffect, useRef, useState } from "react";
 
-const ChartComponent = ({ chartData }: { chartData: [number, number][] }) => {
+type Props = {
+  chartData: [number, number][];
+  green: boolean;
+  className?: string;
+  x?: boolean;
+  y?: boolean;
+};
+
+const ChartComponent = ({ chartData, green, className, x, y }: Props) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const [graphDAta, setgraphDAta] = useState<[number, number][] | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [greenColor, setgreenColor] = useState("");
   useEffect(() => {
     try {
       setgraphDAta(chartData);
@@ -17,12 +27,23 @@ const ChartComponent = ({ chartData }: { chartData: [number, number][] }) => {
     }
   }, [chartData]);
   useEffect(() => {
+    if (green) {
+      setgreenColor("rgba(75, 192, 192, 1)");
+    }
+    if (!green) {
+      setgreenColor("rgba(255, 0, 0, 0.8)");
+    }
+  }, [green]);
+  useEffect(() => {
     if (!chartRef.current) return;
     if (!graphDAta) return;
     const xValues = graphDAta.map(([timestamp]) =>
       new Date(timestamp).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
       })
     );
     const yValues = graphDAta.map(([, price]) => price);
@@ -36,14 +57,14 @@ const ChartComponent = ({ chartData }: { chartData: [number, number][] }) => {
             data: yValues,
             fill: false,
             pointRadius: 0.1,
-            borderColor: "rgba(75, 192, 192, 1)",
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: greenColor,
             tension: 0.000000001,
           },
         ],
       },
       options: {
         responsive: true,
+
         plugins: {
           legend: {
             display: false,
@@ -52,25 +73,25 @@ const ChartComponent = ({ chartData }: { chartData: [number, number][] }) => {
         scales: {
           x: {
             ticks: {
-              display: false,
+              display: x ?? false,
             },
             grid: {
               display: false,
             },
             title: {
-              display: false,
+              display: x ?? false,
               text: "Time",
             },
           },
           y: {
             ticks: {
-              display: false,
+              display: y ?? x ?? false,
             },
             grid: {
               display: false,
             },
             title: {
-              display: false,
+              display: y ?? false,
               text: "Price",
             },
           },
@@ -88,7 +109,10 @@ const ChartComponent = ({ chartData }: { chartData: [number, number][] }) => {
   }
   return (
     <div>
-      <canvas ref={chartRef} className="w-full h-full mb-8  " />
+      <canvas
+        ref={chartRef}
+        className={cn(`w-full h-full mb-8  `, className)}
+      />
     </div>
   );
 };
