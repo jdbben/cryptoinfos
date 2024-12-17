@@ -4,8 +4,12 @@ import { func } from "../../test";
 import { useEffect, useState } from "react";
 import ChartComponent from "@/components/Chart";
 import { coins } from "@/lib/const";
+import { ChartEvent } from "chart.js/dist/core/core.plugins";
+import { ActiveElement } from "chart.js/dist/plugins/plugin.tooltip";
+import BigChart from "@/components/BigChart";
 
 const names = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
+
 const Home = () => {
   const [BigChartName, setBigChartName] = useState<string>("BTCUSDT");
   const [chartDAta, setChartData] = useState<[number, number][]>();
@@ -51,7 +55,7 @@ const Home = () => {
           </div>
         ))}
       </div>
-      <div className="h-fit w-screen">
+      <div className="h-fit w-screen lg:pr-[10vh] lg:pl-[10vh]">
         {isLoading ? (
           <>Loading...</>
         ) : chartDAta ? (
@@ -59,13 +63,7 @@ const Home = () => {
             <h1 className="flex justify-center items-center">
               {coins[BigChartName].toUpperCase()}
             </h1>
-            <ChartComponent
-              chartData={chartDAta}
-              green={true}
-              x={true}
-              y={true}
-              className="pr-5 pl-5"
-            />
+            <BigChart chartData={chartDAta} green={true} x={true} y={true} />
           </>
         ) : (
           <>loading</>

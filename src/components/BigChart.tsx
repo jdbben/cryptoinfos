@@ -1,11 +1,6 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import { LineChart } from "@mui/x-charts";
-import { Chart } from "chart.js/auto";
-import { ChartEvent } from "chart.js/dist/core/core.plugins";
-import { ActiveElement } from "chart.js/dist/plugins/plugin.tooltip";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   chartData: [number, number][];
@@ -15,8 +10,7 @@ type Props = {
   y?: boolean;
 };
 
-const ChartComponent = ({ chartData, green, className, x, y }: Props) => {
-  const chartRef = useRef<HTMLCanvasElement | null>(null);
+const BigChart = ({ chartData, green, className, x, y }: Props) => {
   const [graphDAta, setgraphDAta] = useState<[number, number][] | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [greenColor, setgreenColor] = useState("");
@@ -45,26 +39,34 @@ const ChartComponent = ({ chartData, green, className, x, y }: Props) => {
 
   const yValues = graphDAta.map(([, price]) => price);
 
+  const formattedData = xValues.map((x, index) => ({
+    x: new Date(x),
+    y: yValues[index],
+  }));
+
   return (
     <LineChart
+      dataset={formattedData}
       xAxis={[
         {
-          data: xValues,
-          disableTicks: false,
-          disableLine: false,
+          id: "price",
+          dataKey: "x",
+          scaleType: "time",
+          valueFormatter: (x) => x.toString(),
         },
       ]}
       series={[
         {
           data: yValues,
           showMark: false,
-          disableHighlight: false,
         },
       ]}
-      width={1100}
+      className={cn(`w-full `, className)}
       height={500}
-      margin={{ bottom: 100 }}
+      margin={{ left: 70 }}
+      grid={{ vertical: true, horizontal: true }}
     />
   );
 };
-export default ChartComponent;
+
+export default BigChart;
