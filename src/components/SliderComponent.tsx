@@ -7,6 +7,7 @@ import {
   getTheCoinPrice,
 } from "@/utils/test";
 import { useEffect, useState } from "react";
+import CoinsIntrudoser from "./CoinsIntroduser";
 
 interface CoinData {
   price: string;
@@ -31,11 +32,17 @@ const fetchCoinData = async (name: string) => {
   };
 };
 
-export default function SliderComponent({ name }: { name: string }) {
-  return <CoinWrapper name={name} />;
+export default function SliderComponent({
+  name,
+  small,
+}: {
+  name: string;
+  small: boolean;
+}) {
+  return <CoinWrapper name={name} small={small} />;
 }
 
-const CoinWrapper = ({ name }: { name: string }) => {
+const CoinWrapper = ({ name, small }: { name: string; small: boolean }) => {
   const [data, setData] = useState<CoinData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,17 +116,35 @@ const CoinWrapper = ({ name }: { name: string }) => {
 
   return (
     <div>
-      <CoinCart
-        key={name}
-        usd={new Intl.NumberFormat("de-DE", {
-          style: "currency",
-          currency: "USD",
-        }).format(Number(data.price))}
-        name={name}
-        percentege={`${data.percentageChange}%`}
-        imgurl={data.image}
-        chartData={data.history}
-      />
+      {small ? (
+        <>
+          <CoinsIntrudoser
+            key={name}
+            usd={new Intl.NumberFormat("de-DE", {
+              style: "currency",
+              currency: "USD",
+            }).format(Number(data.price))}
+            name={name}
+            percentege={`${data.percentageChange}%`}
+            imgurl={data.image}
+          />
+        </>
+      ) : (
+        <>
+          {" "}
+          <CoinCart
+            key={name}
+            usd={new Intl.NumberFormat("de-DE", {
+              style: "currency",
+              currency: "USD",
+            }).format(Number(data.price))}
+            name={name}
+            percentege={`${data.percentageChange}%`}
+            imgurl={data.image}
+            chartData={data.history}
+          />
+        </>
+      )}
     </div>
   );
 };

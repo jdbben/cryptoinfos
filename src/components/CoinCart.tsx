@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import ChartComponent from "./Chart";
 
-type Props = {
+export type Props = {
   usd: string;
   name: string;
   percentege: string;

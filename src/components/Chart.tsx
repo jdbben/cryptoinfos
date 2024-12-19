@@ -1,10 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { LineChart } from "@mui/x-charts";
-import { Chart } from "chart.js/auto";
-import { ChartEvent } from "chart.js/dist/core/core.plugins";
-import { ActiveElement } from "chart.js/dist/plugins/plugin.tooltip";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
